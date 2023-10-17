@@ -1,38 +1,34 @@
-library(tidyverse)
-library(here)
+covs <- read.csv(here("original", "covariates.csv"), header = TRUE)
 
-# Read in the covariate data
+source(here("script", "Prepare_Mortality.R"))
+source(here("script", "Prepare_Disaster.R"))
+source(here("script", "Prepare_Conflict.R"))
 
-covariate_data <- read.csv(here("original", "covariates.csv"), header = TRUE)
+
+disasters<- read_csv("Data/clean_disaster_data.csv")
 
 # Change the variable name from "year" to "Year"
 
 names(covariate_data)[names(covariate_data) == "year"] <- "Year"
-names(conflict_data)[names(conflict_data) == "year"] <- "Year"
-# Source the R scripts
+names(confdata)[names(confdata) == "year"] <- "Year"
+names(disasters)[names(disasters) == "year"] <- "Year"
+disasters
 
-source(here("Script", "Prepare_Conflict.R"))
-source(here("Script", "Prepare_Disaster.R"))
-source(here("Script", "Prepare_cleaning_function.R"))
+#put all data frames into list
+alllist <- list(covariate_data, confdata, disasters, clean_merged_mortality_data)
 
-# Merge all data frames in list
+#merge all data frames in list
+alllist |> reduce(left_join, by = c('ISO', 'Year')) -> finaldata
 
-alllist <- list(covariate_data, conflict_data, cleandat, merged_data)
-finaldata <- alllist |> reduce(left_join, by = c('ISO', 'Year'))
-
-final_data<-alllist |> purrr::reduce(left_join, by = c('ISO', 'Year')) 
-# Replace NA's with 0's
-
-final_data <- final_data |>
-  mutate(armed_conflict = replace_na(armed_conflict, 0),
+# need to fill in NAs with 0's for armconf1, drought, earthquake
+finaldata <- finaldata |>
+  mutate(armconf1 = replace_na(armconf1, 0),
          drought = replace_na(drought, 0),
          earthquake = replace_na(earthquake, 0),
-         best = replace_na(best, 0))
+         totdeath = replace_na(totdeath, 0))
 
-# Output results into different sub-folder
+write.csv(finaldata, file = here("data", "finaldata.csv"), row.names = FALSE)
 
-write.csv(final_data, file = here("data", "final_data.csv"), row.names = FALSE)
-
-dim(final_data)
-names(final_data)
-length(unique(final_data$ISO))
+dim(finaldata)
+names(finaldata)
+length(unique(finaldata$ISO))

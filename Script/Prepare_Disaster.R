@@ -39,6 +39,6 @@ head(cleandat, 10)
 
 # Output results into different sub-folder
 
-write.csv(cleandat, here("data", "clean_disaster_data.csv"), row.names = FALSE)
+disasters<-write.csv(cleandat, here("data", "clean_disaster_data.csv"), row.names = FALSE)
 
 # Push to github
