@@ -139,4 +139,5 @@ under5mort2 <- with(mice.multi.out,
 under5mort_pooled <- pool(under5mort2)
 summary(under5mort_pooled)
 
-
+library(usethis)
+usethis::use_git()
